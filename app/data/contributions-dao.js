@@ -54,8 +54,9 @@ function ContributionsDAO(db) {
     };
 
     this.getByUserId = (userId, callback) => {
+        const parsedUserId = parseInt(userId);
         contributionsDB.findOne({
-                userId: userId
+                userId: parsedUserId
             },
             (err, contributions) => {
                 if (err) return callback(err, null);
