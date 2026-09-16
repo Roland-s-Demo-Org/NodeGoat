@@ -8,6 +8,14 @@ const ResearchHandler = require("./research");
 const tutorialRouter = require("./tutorial");
 const ErrorHandler = require("./error").errorHandler;
 
+function isSafeRedirectUrl(url, origin) {
+    if (!url) return false;
+    try {
+        const parsed = new URL(String(url).replace(/[\t\n\r]/g, ''), origin);
+        return parsed.origin === origin && (parsed.protocol === 'http:' || parsed.protocol === 'https:');
+    } catch { return false; }
+}
+
 const index = (app, db) => {
 
     "use strict";
@@ -68,7 +76,10 @@ const index = (app, db) => {
 
     // Handle redirect for learning resources link
     app.get("/learn", isLoggedIn, (req, res) => {
-        // Insecure way to handle redirects by taking redirect url from query string
+        const origin = `${req.protocol}://${req.get("host")}`;
+        if (!isSafeRedirectUrl(req.query.url, origin)) {
+            return res.redirect("/");
+        }
         return res.redirect(req.query.url);
     });
 
